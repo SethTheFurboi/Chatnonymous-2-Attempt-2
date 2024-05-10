@@ -6,6 +6,7 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
+  
 });
 
 const User = model('User', userSchema);
