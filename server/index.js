@@ -26,10 +26,14 @@ app.use(cors())
 let users = []
 
 socketIO.on('connection', (socket) => {
-    console.log(`${socket.id} connected`)  
+    console.log(`⚡: ${socket.id} user just connected!`)  
     socket.on("message", data => {
       socketIO.emit("messageResponse", data)
     })
+
+    socket.on("typing", data => (
+      socket.broadcast.emit("typingResponse", data)
+    ))
 
     socket.on("newUser", data => {
       users.push(data)
@@ -37,7 +41,7 @@ socketIO.on('connection', (socket) => {
     })
  
     socket.on('disconnect', () => {
-      console.log(`${socket.id} disconnected`);
+      console.log('🔥: A user disconnected');
       users = users.filter(user => user.socketID !== socket.id)
       socketIO.emit("newUserResponse", users)
       socket.disconnect()
@@ -52,6 +56,7 @@ const startApolloServer = async () => {
 
   app.use('/graphql', expressMiddleware(server));
 
+  // if we're in production, serve client/dist as static assets
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));
 
